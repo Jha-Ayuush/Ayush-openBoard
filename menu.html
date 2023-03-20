@@ -1,0 +1,273 @@
+<html>
+
+<head>
+    <style>
+        .toolbar {
+            border: 1px solid black;
+            display: flex;
+            height: 50px;
+            width: 40%;
+            background-color: lightgray;
+            margin-left: 25%;
+            justify-content: space-evenly;
+        }
+
+        .tool {
+            border: 5px brown;
+            margin-top: 2px;
+        
+        }
+        .pencil {
+            height: 50px;
+            width: 80px;
+
+        }
+
+        #eraser {
+            height: 45px;
+            width: 80px;
+        }
+
+        .fa-square,
+        .fa-grip-lines-vertical {
+            font-size: 2.5rem;
+            margin-right: 30px;
+            margin-left: 30px;
+            display: flex;
+            justify-content: center;
+
+        }
+
+        .color-container {
+
+            width: 200px;
+            height: 50px;
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+
+        }
+
+        #red {
+            border: solid green;
+            height: 35px;
+            width: 35px;
+            background-color: lightpink;
+            border-radius: 50%;
+        }
+
+        #green {
+            border: solid green;
+            height: 35px;
+            width: 35px;
+
+            background-color: lightgreen;
+            border-radius: 50%;
+        }
+
+        #blue {
+            border: solid green;
+            height: 35px;
+            width: 35px;
+
+            background-color: cyan;
+            border-radius: 50%;
+        }
+    
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="toolbar">
+
+        <div class="tool">
+            <img src="./Icons/Pencil.svg" onclick="MyPencil()" class="pencil">
+        </div>
+        <div class="tool">
+            <img src="./Icons/Eraser.svg" id="eraser">
+        </div>
+
+        <div class="tool">
+            <i class="fa-solid fa-square"></i>
+            <i class="fa-sharp fa-solid fa-grip-lines-vertical"></i>
+        </div>
+
+        <div class="color-container">
+            <div class="color" id="red"></div>
+            <div class="color" id="green"></div>
+            <div class="color" id="blue"></div>
+        </div>
+    </div>
+    <canvas></canvas>
+</body>
+<script>
+    let canvasBoard = document.querySelector("canvas");
+    //let pencilTool = document.querySelector(".pencil");
+    let eraserTool = document.querySelector("#eraser")
+    let rectTool = document.querySelector(".fa-square");
+    let lineTool = document.querySelector(".fa-grip-lines-vertical");
+    let cTool = "rectTool";
+    //default window size is smaller
+
+    let tool = canvasBoard.getContext("2d");
+    let body = document.querySelector("body");
+
+
+    canvasBoard.height = window.innerHeight;
+    canvasBoard.width = window.innerWidth;
+    tool.strokeStyle = "lightpink";
+
+
+    // tool change logic
+    /*pencilTool.addEventListener("click",function(){
+        cTool = "pencilTool";                                  // bug is hear 2:02 AM
+    })*/
+
+
+    rectTool.addEventListener("click",function () {
+        cTool = "rectTool";
+
+    })
+    eraserTool.addEventListener("click",function(){
+        cTool= "eraserTool";
+        tool.strokeStyle= "white";
+        console.log("hey there!!!")
+    })
+    lineTool.addEventListener("click", function () {
+        cTool = "lineTool";
+    })
+    /*pencilTool.addEventListener("click",function(){
+        cTool = "pencilTool";
+    })
+    */
+
+    function MyPencil(){
+        cTool = "pencilTool";
+    }
+
+    let boardTop = canvasBoard.getBoundingClientRect().top;
+    let boardLeft = canvasBoard.getBoundingClientRect().left;
+    let iX, iY, fX, fY;
+
+
+    // pencil logic
+
+    let drawingMode = false;
+    body.addEventListener("mousedown", function (e) {
+        iX = e.clientX - boardLeft
+        iY = e.clientY - boardTop
+        if (cTool == "pencilTool") {
+            drawingMode = true;
+            tool.beginPath();
+            tool.moveTo(iX, iY);
+
+        }
+    })
+
+    body.addEventListener("mouseup", function (e) {
+        if (cTool == "pencilTool") {
+            drawingMode = false;
+        }
+        else if (cTool == "rectTool" || cTool == "lineTool") {
+            fX = e.clientX + boardLeft
+            fY = e.clientY - boardTop;
+            let width = fX - iX;
+            let height = fY - iY;
+            if (cTool == "rectTool") {
+
+                tool.strokeRect(iX, iY, width, height);
+            }
+            else if (cTool == "lineTool") {
+                tool.beginPath();
+                tool.moveTo(iX, iY);
+                tool.lineTo(fX, fY);
+                tool.stroke();
+                console.log("pencil tool is missing")
+            }
+
+        }
+
+
+    })
+
+
+    body.addEventListener("mousemove", function (e) {
+        if (drawingMode == false)
+            return;
+        if (cTool == "pencilTool") {
+
+            fX = e.clientX - boardLeft;
+            fY = e.clientY - boardTop;
+            tool.lineTo(fX, fY);
+            tool.stroke();
+            iX = fX;
+            iY = fY;
+
+
+
+        }
+
+    })
+
+
+    // rect and line logic
+
+
+    /*body.addEventListener("mousedown", function (e) {
+        //alert("mouse was pressed on body")
+        //console.log(e);
+        //let xPos=e.clientX;
+        //let yPos=e.clientY;
+        //console.log(xPos,yPos);
+        iX = e.clientX + boardLeft;
+        iY = e.clientY - boardTop;
+    })
+    
+    body.addEventListener("mouseup", function (e) {
+        // console.log(e);
+        fX = e.clientX + boardLeft
+        fY = e.clientY - boardTop;
+        let width = fX - iX;
+        let height = fY - iY;
+        if (cTool == "rectTool") {
+    
+            tool.strokeRect(iX, iY, width, height);
+        }
+        else {
+            tool.beginPath();
+            tool.moveTo(iX, iY);
+            tool.lineTo(fX, fY);
+            tool.stroke();
+            console.log("pencil tool is missing")
+        }
+    })
+    */
+
+
+    //color change of content
+    let redColor = document.querySelector("#red");
+    let greenColor = document.querySelector("#green");
+    let blueColor = document.querySelector("#blue");
+
+
+    redColor.addEventListener("click", function () {
+        tool.strokeStyle = "red";
+    })
+    greenColor.addEventListener("click", function () {
+        tool.strokeStyle = "green";
+    })
+    blueColor.addEventListener("click", function () {
+        tool.strokeStyle = "blue   ";
+    })
+
+//this line gives you tools to draw
+    // tool.fillStyle="blue";
+    //tool.fillRect(0,0,200,200);
+    //boundaries draw
+    // #DRAW THE  BOUNDARIES# tool.strokeRect(50,100,200,200);
+    //tool.fillStyle="brown";
+    //tool.fillRect(50,100 ,100,100); 
+</script>
+
+</html>
